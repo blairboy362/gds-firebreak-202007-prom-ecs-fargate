@@ -1,0 +1,40 @@
+[
+    {
+        "name": "prometheus",
+        "image": "prom/prometheus:v2.19.2",
+        "command": [],
+        "portMappings": [
+            {
+                "containerPort": 9090,
+                "hostPort": 9090,
+                "protocol": "tcp"
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "${data_volume_name}",
+                "containerPath": "/opt/data",
+                "readOnly": false
+            }
+        ],
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "${log_group_name}",
+                "awslogs-region": "${log_group_region}",
+                "awslogs-stream-prefix": "prometheus"
+            }
+        },
+        "environment": [
+          {
+            "Name": "CONFIG_BASE64",
+            "Value": "${config_base64}"
+          }
+        ],
+        "entryPoint": [
+          "sh",
+          "-c",
+          "set -ueo pipefail; env; mount; df -h; echo $CONFIG_BASE64 | base64 -d > /etc/prometheus/prometheus.yml; prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/opt/data --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles"
+        ]
+    }
+]
