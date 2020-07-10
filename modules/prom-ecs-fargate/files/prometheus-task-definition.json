@@ -15,6 +15,10 @@
                 "sourceVolume": "${data_volume_name}",
                 "containerPath": "/opt/data",
                 "readOnly": false
+            },
+            {
+                "sourceVolume": "task",
+                "containerPath": "/task"
             }
         ],
         "logConfiguration": {
@@ -26,15 +30,68 @@
             }
         },
         "environment": [
-          {
-            "Name": "CONFIG_BASE64",
-            "Value": "${config_base64}"
-          }
+            {
+                "Name": "CONFIG_BASE64",
+                "Value": "${config_base64}"
+            },
+            {
+                "Name": "ENTRYPOINT_BASE64",
+                "Value": "${prometheus_entrypoint_base64}"
+            }
         ],
+        "user": "root",
         "entryPoint": [
-          "sh",
-          "-c",
-          "set -ueo pipefail; env; mount; df -h; echo $CONFIG_BASE64 | base64 -d > /etc/prometheus/prometheus.yml; prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/opt/data --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles"
+            "sh",
+            "-c",
+            "set -ueo pipefail; echo $ENTRYPOINT_BASE64 | base64 -d > /tmp/entrypoint.sh; chmod +x /tmp/entrypoint.sh; exec /tmp/entrypoint.sh"
+        ]
+    },
+    {
+        "name": "thanos",
+        "image": "thanosio/thanos:v0.14.0",
+        "command": [],
+        "portMappings": [
+            {
+                "containerPort": 10901,
+                "hostPort": 10901,
+                "protocol": "tcp"
+            },
+            {
+                "containerPort": 10902,
+                "hostPort": 10902,
+                "protocol": "tcp"
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "${data_volume_name}",
+                "containerPath": "/opt/data",
+                "readOnly": false
+            },
+            {
+                "sourceVolume": "task",
+                "containerPath": "/task"
+            }
+        ],
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "${log_group_name}",
+                "awslogs-region": "${log_group_region}",
+                "awslogs-stream-prefix": "thanos-sidecar"
+            }
+        },
+        "environment": [
+            {
+                "Name": "ENTRYPOINT_BASE64",
+                "Value": "${thanos_entrypoint_base64}"
+            }
+        ],
+        "user": "root",
+        "entryPoint": [
+            "sh",
+            "-c",
+            "set -ueo pipefail; echo $ENTRYPOINT_BASE64 | base64 -d > /tmp/entrypoint.sh; chmod +x /tmp/entrypoint.sh; exec /tmp/entrypoint.sh"
         ]
     }
 ]

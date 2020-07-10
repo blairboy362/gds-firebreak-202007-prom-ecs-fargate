@@ -34,8 +34,9 @@ module "prometheus" {
     module.vpc.public_c,
   ]
 
-  vpc_id  = module.vpc.vpc_id
-  zone_id = "Z1R5NJUX1TKL6G"
+  vpc_id        = module.vpc.vpc_id
+  zone_id       = "Z1R5NJUX1TKL6G"
+  desired_count = 3
 }
 
 output "fqdn" {

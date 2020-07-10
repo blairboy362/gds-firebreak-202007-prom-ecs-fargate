@@ -13,3 +13,7 @@ variable "vpc_id" {
 variable "zone_id" {
   type = string
 }
+
+variable "desired_count" {
+  type = string
+}

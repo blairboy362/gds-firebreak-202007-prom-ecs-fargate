@@ -1,0 +1,42 @@
+[
+    {
+        "name": "thanos",
+        "image": "thanosio/thanos:v0.14.0",
+        "command": [],
+        "portMappings": [
+            {
+                "containerPort": 10903,
+                "hostPort": 10903,
+                "protocol": "tcp"
+            },
+            {
+                "containerPort": 10904,
+                "hostPort": 10904,
+                "protocol": "tcp"
+            },
+            {
+                "containerPort": 19192,
+                "hostPort": 19192,
+                "protocol": "tcp"
+            }
+        ],
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "${log_group_name}",
+                "awslogs-region": "${log_group_region}",
+                "awslogs-stream-prefix": "thanos-query"
+            }
+        },
+        "entryPoint": [
+            "thanos",
+            "query",
+            "--http-address",
+            "0.0.0.0:19192",
+            "--store",
+            "dns+prometheus.prometheus.gds.local:10901",
+            "--query.replica-label",
+            "replica"
+        ]
+    }
+]

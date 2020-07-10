@@ -60,3 +60,18 @@ resource "aws_iam_role" "prometheus_task" {
   name               = "prometheus-task"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_roll.json
 }
+
+resource "aws_iam_role" "thanos_query_execution" {
+  name               = "thanos-query-execution"
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_roll.json
+}
+
+resource "aws_iam_role_policy_attachment" "thanos_query_cloudwatch_access" {
+  role       = aws_iam_role.thanos_query_execution.name
+  policy_arn = aws_iam_policy.prometheus_cloudwatch_access.arn
+}
+
+resource "aws_iam_role" "thanos_query_task" {
+  name               = "thanos-query-task"
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_roll.json
+}

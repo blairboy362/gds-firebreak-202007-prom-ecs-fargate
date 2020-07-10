@@ -6,9 +6,9 @@ resource "aws_lb" "prometheus" {
   subnets            = var.public_subnet_ids
 }
 
-resource "aws_lb_target_group" "prometheus" {
-  name        = "prometheus"
-  port        = 9090
+resource "aws_lb_target_group" "thanos_query" {
+  name        = "thanos-query"
+  port        = 19192
   target_type = "ip"
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -29,7 +29,7 @@ resource "aws_lb_listener" "prometheus" {
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.prometheus.arn
+    target_group_arn = aws_lb_target_group.thanos_query.arn
   }
 }
 
@@ -38,10 +38,10 @@ resource "aws_lb_listener" "prometheus_80" {
   port              = 80
   protocol          = "HTTP"
   default_action {
-    type             = "redirect"
+    type = "redirect"
     redirect {
-      port = 9090
-      protocol = "HTTP"
+      port        = 9090
+      protocol    = "HTTP"
       status_code = "HTTP_301"
     }
   }

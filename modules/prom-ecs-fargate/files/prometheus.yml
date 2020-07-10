@@ -2,8 +2,21 @@ global:
   scrape_interval: 30s
   scrape_timeout: 10s
   evaluation_interval: 1m
+  external_labels:
+    replica: "ORDINAL"
 scrape_configs:
 - job_name: prometheus
   honor_labels: true
+  dns_sd_configs:
+  - names:
+    - prometheus.prometheus.gds.local
+    type: A
+    port: 9090
+- job_name: verify-grafana
+  honor_labels: true
+  scheme: https
+  tls_config:
+    insecure_skip_verify: true
   static_configs:
-  - targets: ['localhost:9090']
+  - targets:
+    - grafana.london.verify.govsvc.uk:443
